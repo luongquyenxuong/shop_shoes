@@ -1,0 +1,39 @@
+<th:block th:fragment="header">
+    <header class="header">
+        <div class="logo-container">
+
+            <a href="/admin" class="logo"><img th:src="@{/shop/images/Logo.jpg}"
+                                               style="width: 100px; height: 40px; object-fit: cover;" alt="Logo.jpg"
+                                               src=""></a>
+        </div>
+
+        <div class="header-right pr-4">
+            <span class="separator"></span>
+            <div id="userbox" class="userbox">
+                <a id="notification-dropdown1" href="#" data-toggle="dropdown">
+                    <figure class="profile-picture">
+                        <img th:src="@{/shop/images/avatar/avatar.png}" alt="Joseph Doe" class="rounded-circle"
+                             data-lock-picture="img/%21logged-user.jpg" src=""/>
+                    </figure>
+                    <div class="profile-info">
+                        <span class="name">[[${#httpServletRequest.remoteUser}]]</span>
+                        <span class="role">Administrator</span>
+                    </div>
+
+
+                </a>
+                <a id="notification-dropdown2" href="#" data-toggle="modal">
+                    <i class="fas fa-bell"></i>
+                    <div id="notificationDot" style="display: none;"></div>
+                </a>
+                <div class="dropdown-menu" style="width: 230px">
+
+                </div>
+            </div>
+
+
+
+        </div>
+
+    </header>
+</th:block>

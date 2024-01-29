@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout_admin :: main-fragment(
+                                                ~{:: title},
+                                                'header',
+                                                'sidebar',
+                                                ~{:: #css-resources},
+                                                ~{:: #js-resources},
+                                                ~{:: #main-content}
+                                               )}">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách tài khoản</title>
+    <th:block id="css-resources">
+        <link rel="stylesheet" th:href="@{/adminlte/pagination/simplePagination.css}">
+        <link rel="stylesheet" th:href="@{/adminlte/css/custom.css}">
+
+    </th:block>
+</head>
+<body>
+<section role="main" class="content-body" id="main-content">
+    <header class="page-header">
+        <div class="right-wrapper text-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/admin">
+                        <i class="bx bx-home-alt"></i>
+                    </a>
+                </li>
+                <li><span>Danh sách tài khoản</span></li>
+            </ol>
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i
+                    class="fas fa-chevron-left"></i></a>
+        </div>
+    </header>
+
+    <section class="card">
+        <header class="card-header">
+            <div class="card-actions">
+                <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+                <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
+            </div>
+            <h2 class="card-title">Danh sách tài khoản </h2>
+        </header>
+        <div class="card-body">
+<!--            <div class="row">-->
+<!--                <div class="col-sm-6">-->
+<!--                    <div class="mb-3">-->
+<!--                        <button id="addToTable" class="btn btn-primary">Thêm mới tài khoản <i-->
+<!--                                class="fas fa-plus"></i></button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+            <table class="table table-bordered table-striped mb-0" id="datatable-editable">
+                <thead>
+                <tr>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Số điện thoại</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                </tr>
+                <tr>
+                    <form method="GET" id="search-form">
+                        <th><input type="text" name="fullName" id="fullName" class="form-control search-input"></th>
+                        <th><input type="text" name="email" id="email" class="form-control search-input"></th>
+                        <th><input type="text" name="phone" id="phone" class="form-control search-input"></th>
+
+                        <th>
+                            <select name="status" class="form-control search-select" id="status">
+                                <option value="">Tất cả</option>
+                                <option value="1">Đang hoạt động</option>
+                                <option value="0">Không hoạt động</option>
+                            </select>
+                        </th>
+                        <th></th>
+
+                        <input type="hidden" name="page" id="page">
+                    </form>
+                </tr>
+                </thead>
+                <tbody>
+                <th:block th:each="user : ${users}">
+                    <tr data-item-id="1" th:attr="data-id = ${user.id}">
+                        <td th:text="${user.fullName}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td th:text="${user.phone}"></td>
+                        <th:block th:if="${user.status} == true">
+                            <td><label class="switch" style="margin-left: 60px;">
+                                <input class="user-checkbox" type="checkbox" th:data-id="${user.id}" checked>
+                                <span class="slider round"></span>
+                            </label></td>
+                        </th:block>
+                        <th:block th:if="${user.status} == false">
+                            <td><label class="switch" style="margin-left: 60px;">
+                                <input class="user-checkbox" type="checkbox" th:data-id="${user.id}">
+                                <span class="slider round"></span>
+                            </label></td>
+                        </th:block>
+                        <td th:text="${#dates.format(user.createdAt, 'dd-MM-yyyy')}"></td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+            <br>
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination" id="pagination"></ul>
+            </nav>
+        </div>
+    </section>
+
+</section>
+
+<th:block id="js-resources">
+    <script type="text/javascript" th:src="@{/adminlte/pagination/jquery.simplePagination.js}"></script>
+    <script type="text/javascript" th:src="@{/adminlte/js/table.js}"></script>
+    <script th:inline="javascript">
+        let fullName, email, phone,status, page;
+
+        $(function () {
+            let vars = parseUrl();
+            fullName = vars["fullName"] || ""
+            email = vars["email"] || ""
+            phone = vars["phone"] || ""
+            status = vars["status"] || ""
+            page = vars["page"] || "1"
+
+            $('#fullName').val(fullName)
+            $('#email').val(email)
+            $('#phone').val(phone)
+            $('#status').val(status)
+            $('#page').val(page)
+
+            pagination([[${totalPages}]], [[${currentPage}]]);
+        });
+
+        let checkboxes = document.querySelectorAll('.user-checkbox');
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('click', function () {
+
+                let userId = checkbox.closest('tr').getAttribute('data-id');
+                console.log(userId);
+                // Gọi API khi checkbox được click
+                $.ajax({
+                    url: '/api/admin/user/update-status/' + userId,
+                    type: 'PUT',
+                    success: function (response) {
+                        // Nếu API gọi thành công, đổi trạng thái của checkbox
+                        if (response === true) {
+                            toastr.success("Cập nhật trạng thái thành công");
+                            checkbox.checked = true;
+                        } else {
+                            // Nếu không thành công, giữ nguyên trạng thái checkbox
+                            toastr.success("Cập nhật trạng thái thành công");
+                            checkbox.checked = false;
+
+                        }
+                    },
+                    error: function (error) {
+                        toastr.warning(error.responseJSON.message);
+
+                    }
+                });
+            })
+        })
+    </script>
+</th:block>
+</body>
+</html>

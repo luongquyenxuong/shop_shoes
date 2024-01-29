@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout_admin :: main-fragment(
+                                                ~{:: title},
+                                                'header',
+                                                'sidebar',
+                                                ~{:: #css-resources},
+                                                ~{:: #js-resources},
+                                                ~{:: #main-content}
+                                               )}">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách nhà cung cấp</title>
+    <th:block id="css-resources">
+        <link rel="stylesheet" th:href="@{/adminlte/pagination/simplePagination.css}">
+        <link rel="stylesheet" th:href="@{/adminlte/css/custom.css}">
+    </th:block>
+</head>
+<body>
+<section role="main" class="content-body" id="main-content">
+    <header class="page-header">
+        <!--        <h2>Editable Tables</h2>-->
+        <div class="right-wrapper text-right">
+            <ol class="breadcrumbs pr-3">
+                <li>
+                    <a href="index.html">
+                        <i class="bx bx-home-alt"></i>
+                    </a>
+                </li>
+                <li><span>Tables</span></li>
+                <li><span>Editable</span></li>
+            </ol>
+        </div>
+    </header>
+
+    <section class="card">
+        <header class="card-header">
+            <div class="card-actions">
+                <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+                <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
+            </div>
+            <h2 class="card-title">Danh sách nhà cung cấp </h2>
+        </header>
+        <div class="card-body">
+            <!--            <div class="row">-->
+            <!--                <div class="col-sm-4">-->
+            <!--                    <div class="mb-3">-->
+            <!--                        <button id="addToTable" class="btn btn-primary" data-toggle="modal"-->
+            <!--                                data-target="#modal-add-new-supplier">Thêm mới nhà cung cấp <i-->
+            <!--                                class="fas fa-plus"></i></button>-->
+            <!--                        <a href="/admin/suppliers" class="btn btn-primary">Refresh <i-->
+            <!--                                class="fas fa-redo-alt"></i></a>-->
+            <!--                        <button id="btn-search" class="btn btn-primary">Tìm kiếm <i-->
+            <!--                                class="fas fa-search"></i></button>-->
+            <!--                    </div>-->
+            <!--                </div>-->
+            <!--            </div>-->
+            <table class="table table-bordered table-striped mb-0" id="datatable-editable">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tên nhà cung cấp</th>
+                    <th>Số điện thoại</th>
+                    <th>Trạng thái nhà cung cấp</th>
+                    <!--                    <th>Thứ tự nhãn hiệu</th>-->
+                    <th>Ngày thêm nhà cung cấp</th>
+                    <th>Ngày sửa nhà cung cấp</th>
+                    <th>Thao tác</th>
+                </tr>
+                <tr>
+                    <form method="GET" id="search-form">
+                        <th>
+                            <input type="text" name="id" id="id" class="form-control search-input">
+                        </th>
+                        <th>
+                            <input type="text" name="name" id="name" class="form-control search-input">
+                        </th>
+                        <th>
+                            <input type="text" name="phone" id="phone" class="form-control search-input">
+                        </th>
+                        <th>
+                            <select name="status" class="form-control search-select" id="status">
+                                <option value="">Tất cả</option>
+                                <option value="0">Ẩn</option>
+                                <option value="1">Hiển thị</option>
+                            </select>
+                        </th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <input type="hidden" name="page" id="page">
+                    </form>
+                </tr>
+                </thead>
+                <tbody>
+                <th:block th:each="supplier : ${suppliers}">
+                    <tr data-item-id="1" th:attr="data-id=${supplier.id}">
+                        <td th:text="${supplier.id}"></td>
+                        <td class="supplier-name" th:data-id="${supplier.id}" th:text="${supplier.name}"></td>
+
+                        <td class="supplier-phone" th:data-id="${supplier.id}" th:text="${supplier.phoneNumber}"></td>
+
+                        <th:block th:if="${supplier.status} == true">
+                            <td><label class="switch" style="margin-left: 60px;">
+                                <input type="checkbox" checked th:data-id="${supplier.id}"
+                                       class="supplier-status">
+                                <span class="slider round"></span>
+                            </label></td>
+                        </th:block>
+                        <th:block th:if="${supplier.status} == false">
+                            <td><label class="switch" style="margin-left: 60px;">
+                                <input type="checkbox" th:data-id="${supplier.id}" class="supplier-status">
+                                <span class="slider round"></span>
+                            </label></td>
+                        </th:block>
+                        <td th:text="${#dates.format(supplier.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td th:text="${#dates.format(supplier.modifiedAt, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td class="actions">
+                            <a href="#" class="import-supplier" th:data-id="${supplier.id}"><i
+                                    class="fas fa-file-import"></i></a>
+                            <a href="#" class="edit-supplier" th:data-id="${supplier.id}"><i
+                                    class="fas fa-pencil-alt"></i></a>
+                            <!--                            <a href="#" class=" delete-supplier" th:data-id="${supplier.id}"><i-->
+                            <!--                                    class="far fa-trash-alt"></i></a>-->
+                        </td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+            <br>
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination" id="pagination"></ul>
+            </nav>
+        </div>
+
+
+    </section>
+
+    <!-- Modal add new supplier-->
+    <th:block th:replace="~{fragment/modal_add_supplier :: modal-add-supplier}"></th:block>
+
+
+    <!--    Modal update supplier-->
+    <div class="modal fade" id="modal-update-supplier" tabindex="-1" role="dialog" aria-labelledby="modalUpdateSupplier"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chỉnh sửa nhà cung cấp</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="formUpdateSupplier" class="row">
+                        <div class="form-group col-6">
+                            <label class="required-label" for="update_name_supplier">Tên nhà cung cấp<span
+                                    class="required">*</span></label>
+                            <input type="text" class="form-control" name="update_name_supplier"
+                                   id="update_name_supplier">
+
+                        </div>
+                        <br>
+                        <div class="form-group col-6">
+                            <label class="required-label" for="update_address_supplier">Địa chỉ nhà cung cấp<span
+                                    class="required">*</span></label>
+                            <input type="text" class="form-control" name="update_address_supplier"
+                                   id="update_address_supplier">
+
+                        </div>
+                        <br>
+                        <div class="form-group col-6">
+                            <label class="required-label" for="update_phone_supplier">Số điện thoại nhà cung
+                                cấp<span
+                                        class="required">*</span></label>
+                            <input type="text" class="form-control" name="update_phone_supplier"
+                                   id="update_phone_supplier">
+
+                        </div>
+                        <br>
+                        <div class="form-group col-6">
+                            <label class="required-label" for="update_contact_person_supplier">Người đại diện nhà
+                                cung cấp<span
+                                        class="required">*</span></label>
+                            <input type="text" class="form-control" name="update_contact_person_supplier"
+                                   id="update_contact_person_supplier">
+
+                        </div>
+                        <br>
+                        <div class="form-group col-6">
+                            <label class="required-label" for="update_email_supplier">Email nhà cung cấp<span
+                                    class="required">*</span></label>
+                            <input type="text" class="form-control" name="update_email_supplier"
+                                   id="update_email_supplier">
+
+                        </div>
+                        <br>
+                        <div class="form-group col-6">
+                            <label class="required-label" for="update_note_supplier">Ghi chú</label>
+                            <input type="text" class="form-control" name="update_note_supplier"
+                                   id="update_note_supplier">
+                        </div>
+                        <br>
+                        <div class="form-group col-6">
+                            <label class="required-label" for="update_tax_supplier">Mã số thuế</label>
+                            <input type="text" class="form-control" name="update_tax_supplier" id="update_tax_supplier">
+                        </div>
+                        <br>
+                        <div class="form-group col-6">
+                            <label class="required-label" for="update_website_supplier">Website</label>
+                            <input type="text" class="form-control" name="update_website_supplier"
+                                   id="update_website_supplier">
+                        </div>
+                        <br>
+                        <div class="form-group col-6">
+                            <label>Trạng thái</label>
+                            <br>
+                            <label class="switch">
+                                <input type="checkbox" id="update_status">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <!--                        <div class="modal-footer">-->
+                        <!--                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>-->
+                        <!--                            <button type="submit" class="btn btn-primary btn-add-new-supplier">Thêm</button>-->
+                        <!--                        </div>-->
+                        <div class="modal-footer form-group border-0 col-6">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-info btn-update-supplier">Sửa</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<th:block id="js-resources">
+    <script type="text/javascript" th:src="@{/adminlte/pagination/jquery.simplePagination.js}"></script>
+    <script type="text/javascript" th:src="@{/adminlte/js/table.js}"></script>
+    <script type="text/javascript" th:src="@{/adminlte/js/list.min.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+    <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>-->
+    <script th:inline="javascript">
+        let id, name, phone, status, page;
+        $(function () {
+            let vars = parseUrl();
+            id = vars["id"] || ""
+            name = vars["name"] || ""
+            phone = vars["phone"] || ""
+            status = vars["status"] || ""
+            page = vars["page"] || "0"
+
+            $('#id').val(id)
+            $('#name').val(name)
+            $('#phone').val(phone)
+            $('#status').val(status)
+            $('#page').val(page)
+            $('#supplier').addClass('nav-expanded');
+            pagination([[${totalPages}]], [[${currentPage}]])
+        });
+
+
+        // Lắng nghe sự kiện hide.bs.modal của Bootstrap Modal
+        $('#modal-add-new-supplier').on('hide.bs.modal', function (e) {
+            // Thiết lập giá trị của các trường input về chuỗi rỗng
+            $('#new_name_supplier').val('');
+            $('#new_address_supplier').val('');
+            $('#new_phone_supplier').val('');
+            $('#new_contact_person_supplier').val('');
+            $('#new_email_supplier').val('');
+            $('#new_note_supplier').val('');
+            $('#new_tax_supplier').val('');
+            $('#new_website_supplier').val('');
+
+
+        });
+
+
+        $("#formSupplier").submit(function (e) {
+            e.preventDefault();
+        }).validate({
+            rules: {
+                new_name_supplier: {
+                    required: true,
+                    maxlength: 50
+                },
+                new_address_supplier: {
+                    required: true,
+                    maxlength: 200
+                },
+                new_phone_supplier: {
+                    required: true,
+                    number: true,
+                    rangelength: [10, 10],
+                },
+                new_contact_person_supplier: {
+                    required: true,
+                    maxlength: 50
+                },
+                new_email_supplier: {
+                    required: true,
+                    email: true,
+                    maxlength: 50
+                },
+                new_tax_supplier: {
+                    number: true,
+                    rangelength: [10, 10],
+                },
+                new_website_supplier: {
+                    url: true,
+                },
+
+            },
+            messages: {
+                new_name_supplier: {
+                    required: "Vui lòng nhập tên nhà cung cấp!",
+                    maxlength: "Tên danh mục có độ dài tối đa 50 ký tự!",
+                },
+                new_address_supplier: {
+                    required: "Vui lòng nhập địa chỉ nhà cung cấp!",
+                    maxlength: "Tên danh mục có độ dài tối đa 50 ký tự!",
+                },
+                new_phone_supplier: {
+                    required: "Vui lòng nhập số điện thoại nhà cung cấp!",
+                    number: "Vui lòng nhập số điện thoại đúng đinh dạng!",
+                    rangeLength: "Số điện thoại gồm có 10 số!",
+                },
+                new_contact_person_supplier: {
+                    required: "Vui lòng nhập tên nguời đại diện nhà cung cấp!",
+                    maxlength: "Tên danh mục có độ dài tối đa 50 ký tự!",
+                },
+                new_email_supplier: {
+                    required: "Vui lòng nhập email nhà cung cấp!",
+                    email: "Vui lòng nhập đúng định dạng email",
+                    maxlength: "Tên danh mục có độ dài tối đa 50 ký tự!",
+                },
+                new_tax_supplier: {
+                    required: "Vui lòng nhập tên nhà cung cấp!",
+                    number: "Vui lòng nhập mã số thuế đúng đinh dạng!",
+                    rangelength: "Mã số thuế gồm có 10 số!",
+                },
+                new_website_supplier: {
+                    url: "Vui lòng nhập đúng url nhà cung cấp!",
+                },
+
+            },
+            submitHandler: function () {
+
+
+                let nameSupplier = document.getElementById('new_name_supplier').value;
+                let addressSupplier = document.getElementById('new_address_supplier').value;
+                let phoneSupplier = document.getElementById('new_phone_supplier').value;
+                let contactPersonSupplier = document.getElementById('new_contact_person_supplier').value;
+                let emailSupplier = document.getElementById('new_email_supplier').value;
+                let noteSupplier = document.getElementById('new_note_supplier').value;
+                let taxSupplier = document.getElementById('new_tax_supplier').value;
+                let websiteSupplier = document.getElementById('new_website_supplier').value;
+
+
+                let req = {
+                    name: nameSupplier,
+                    address: addressSupplier,
+                    phoneNumber: phoneSupplier,
+                    contactPerson: contactPersonSupplier,
+                    email: emailSupplier,
+                    note: noteSupplier,
+                    taxNumber: taxSupplier,
+                    website: websiteSupplier,
+                    status: true
+                }
+                let myJSON = JSON.stringify(req);
+                $.ajax({
+                    url: '/api/admin/create-supplier',
+                    type: 'POST',
+                    data: myJSON,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        toastr.success("Tạo nhà cung cấp thành công");
+                        $('.modal').modal('hide');
+                        setTimeout(() => location.reload(), 500);
+                    },
+                    error: function (data) {
+                        toastr.warning(data.responseJSON.message);
+                    }
+                });
+
+
+            }
+        })
+
+
+        let supplierId;
+
+        $('.edit-supplier').click(function () {
+            supplierId = $(this).data('id');
+            $.ajax({
+                url: "/api/admin/supplier/" + supplierId,
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    $("#update_name_supplier").val(data.name);
+                    $("#update_address_supplier").val(data.address);
+                    $("#update_phone_supplier").val(data.phoneNumber);
+                    $("#update_contact_person_supplier").val(data.contactPerson);
+                    $("#update_email_supplier").val(data.email);
+                    $("#update_note_supplier").val(data.note);
+                    $("#update_tax_supplier").val(data.taxNumber);
+                    $("#update_bank_account_supplier").val(data.bankAccount);
+                    $("#update_website_supplier").val(data.website);
+
+                    if (data.status == true) {
+                        $("#update_status").prop('checked', true)
+                    } else {
+                        $("#update_status").prop('checked', false)
+                    }
+                    $('#modal-update-supplier').modal('show');
+                }
+            })
+        });
+
+        $("#formUpdateSupplier").submit(function (e) {
+            e.preventDefault();
+        }).validate({
+            rules: {
+                update_name_supplier: {
+                    required: true,
+                    maxlength: 50
+                },
+                update_address_supplier: {
+                    required: true,
+                    maxlength: 200
+                },
+                update_phone_supplier: {
+                    required: true,
+                    number: true,
+                    rangelength: [10, 10],
+                },
+                update_contact_person_supplier: {
+                    required: true,
+                    maxlength: 50
+                },
+                update_email_supplier: {
+                    required: true,
+                    email: true,
+                    maxlength: 50
+                },
+                update_tax_supplier: {
+                    number: true,
+                    rangelength: [10, 10],
+                },
+                update_website_supplier: {
+                    url: true,
+                },
+
+            },
+            message: {
+                update_name_supplier: {
+                    required: "Vui lòng nhập tên nhà cung cấp!",
+                    maxlength: "Tên danh mục có độ dài tối đa 50 ký tự!",
+                },
+                update_address_supplier: {
+                    required: "Vui lòng nhập địa chỉ nhà cung cấp!",
+                    maxlength: "Tên danh mục có độ dài tối đa 50 ký tự!",
+                },
+                update_phone_supplier: {
+                    required: "Vui lòng nhập số điện thoại nhà cung cấp!",
+                    number: "Vui lòng nhập số điện thoại đúng đinh dạng!",
+                    rangelength: "Số điện thoại gồm có 10 số!",
+                },
+                update_contact_person_supplier: {
+                    required: "Vui lòng nhập tên nguời đại diện nhà cung cấp!",
+                    maxlength: "Tên danh mục có độ dài tối đa 50 ký tự!",
+                },
+                update_email_supplier: {
+                    required: "Vui lòng nhập email nhà cung cấp!",
+                    email: "Vui lòng nhập đúng định dạng email",
+                    maxlength: "Tên danh mục có độ dài tối đa 50 ký tự!",
+                },
+                update_tax_supplier: {
+                    required: "Vui lòng nhập tên nhà cung cấp!",
+                    number: "Vui lòng nhập mã số thuế đúng đinh dạng!",
+                    rangelength: "Mã số thuế gồm có 10 số!",
+                },
+                update_website_supplier: {
+                    url: "Vui lòng nhập đúng url nhà cung cấp!",
+                },
+
+            },
+            submitHandler: function () {
+
+                let nameSupplier = document.getElementById('update_name_supplier').value;
+                let addressSupplier = document.getElementById('update_address_supplier').value;
+                let phoneSupplier = document.getElementById('update_phone_supplier').value;
+                let contactPersonSupplier = document.getElementById('update_contact_person_supplier').value;
+                let emailSupplier = document.getElementById('update_email_supplier').value;
+                let noteSupplier = document.getElementById('update_note_supplier').value;
+                let taxSupplier = document.getElementById('update_tax_supplier').value;
+                let websiteSupplier = document.getElementById('update_website_supplier').value;
+                let status = false;
+                if ($("#update_status").is(":checked")) {
+                    status = true;
+                }
+
+                let req = {
+                    id: supplierId,
+                    name: nameSupplier,
+                    address: addressSupplier,
+                    phoneNumber: phoneSupplier,
+                    contactPerson: contactPersonSupplier,
+                    email: emailSupplier,
+                    note: noteSupplier,
+                    taxNumber: taxSupplier,
+                    website: websiteSupplier,
+                    status: status
+
+                }
+                let myJSON = JSON.stringify(req);
+
+                $.ajax({
+                    url: '/api/admin/supplier/update',
+                    type: 'PUT',
+                    data: myJSON,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        toastr.success("Sửa nhà cung cấp thành công");
+                        $('.modal').modal('hide');
+                        setTimeout(() => location.reload(), 500);
+                    },
+                    error: function (data) {
+                        toastr.warning(data.responseJSON.message);
+                    }
+                });
+
+
+            }
+        })
+
+
+        $(".delete-supplier").on("click", function () {
+            let id = $(this).data('id');
+            swal({
+                title: 'Bạn chắc chắn muốn xóa!',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                cancelButtonText: "Không",
+                confirmButtonText: "Có",
+            }).then(function (rs) {
+                if (rs.value) {
+                    $.ajax({
+                        url: "/api/admin/suppliers/" + id,
+                        type: "DELETE",
+                        success: function (data) {
+                            toastr.success("Xóa nhà cung cấp thành công!");
+                            setTimeout(() => location.reload(), 500);
+                        },
+                        error: function (error) {
+                            toastr.warning(error.responseJSON.message);
+                        }
+                    })
+                }
+            })
+        })
+
+
+        $(".import-supplier").on("click", function () {
+            let id = $(this).data('id');
+            let fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.csv';
+            fileInput.style.display = 'none';
+
+            // Bắt sự kiện khi người dùng chọn tệp CSV
+            fileInput.addEventListener('change', function () {
+                let selectedFile = fileInput.files[0];
+
+                // Kiểm tra xem người dùng đã chọn tệp CSV chưa
+                if (selectedFile) {
+                    let formData = new FormData();
+                    formData.append('id', id);
+                    formData.append('file', selectedFile);
+                    // Gửi tệp CSV đến API sử dụng Fetch API hoặc XMLHttpRequest
+                    $.ajax({
+                        url: '/api/upload/file-code-shipment',
+                        type: 'post',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            toastr.success("Thêm mã đợt hàng thành công!");
+                        },
+                        error: function (data) {
+                            toastr.warning(data.responseJSON.message);
+                        }
+                    });
+                }
+            });
+
+            // Kích hoạt sự kiện click trên input type=file
+            fileInput.click();
+
+        })
+
+        $(".delete-supplier").on("click", function () {
+            let id = $(this).data('id');
+            swal({
+                title: 'Bạn chắc chắn muốn xóa!',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                cancelButtonText: "Không",
+                confirmButtonText: "Có",
+            }).then(function (rs) {
+                if (rs.value) {
+                    $.ajax({
+                        url: "/api/admin/supplier/" + id,
+                        type: "DELETE",
+                        success: function (data) {
+                            toastr.success("Xóa nhà cung cấp thành công!");
+                            setTimeout(() => location.reload(), 500);
+                        },
+                        error: function (error) {
+                            toastr.warning(error.responseJSON.message);
+                        }
+                    })
+                }
+            })
+        })
+
+        let checkboxes = document.querySelectorAll('.supplier-status');
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('click', function () {
+
+                let supplierId = checkbox.closest('tr').getAttribute('data-id');
+
+                // Gọi API khi checkbox được click
+                $.ajax({
+                    url: '/api/admin/supplier/update-status/' + supplierId,
+                    type: 'PUT', // Hoặc 'POST' tùy thuộc vào phương thức của API
+                    success: function (response) {
+                        // Nếu API gọi thành công, đổi trạng thái của checkbox
+                        if (response === true) {
+                            toastr.success("Cập nhật trạng thái thành công");
+                            checkbox.checked = true;
+                        } else {
+                            // Nếu không thành công, giữ nguyên trạng thái checkbox
+                            toastr.success("Cập nhật trạng thái thành công");
+                            checkbox.checked = false;
+
+                        }
+                    },
+                    error: function (error) {
+                        toastr.warning(error.responseJSON.message);
+
+                    }
+                });
+            })
+        })
+    </script>
+</th:block>
+</body>
+</html>

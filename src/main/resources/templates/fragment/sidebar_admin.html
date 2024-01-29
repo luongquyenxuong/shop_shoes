@@ -1,0 +1,213 @@
+<th:block th:fragment="sidebar">
+    <aside id="sidebar-left" class="sidebar-left">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+
+            </div>
+            <div class="sidebar-toggle d-none d-md-block" data-toggle-class="sidebar-left-collapsed"
+                 data-target="html" data-fire-event="sidebar-left-toggle">
+                <i class="fas fa-bars" aria-label="Toggle sidebar"></i>
+            </div>
+        </div>
+        <div class="nano">
+            <div class="nano-content">
+                <nav id="menu" class="nav-main" role="navigation">
+                    <ul class="nav nav-main">
+                        <li>
+                            <a class="nav-link" href="/admin">
+                                <i class="bx bx-home-alt" aria-hidden="true"></i>
+                                <span>Trang chủ</span>
+                            </a>
+                        </li>
+                        <li id="category" class="nav-parent">
+                            <a class="nav-link" href="#">
+                                <i class="bx bx-layout" aria-hidden="true"></i>
+                                <span>Quản lý danh mục</span>
+                            </a>
+                            <ul class="nav nav-children">
+                                <li>
+                                    <a class="nav-link" href="/admin/categories">
+                                        Danh sách danh mục
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" data-toggle="modal"
+                                            data-target="#modal-add-new-category">Thêm mới danh mục</a>
+<!--                                    <a class="nav-link" href="/admin/products/create" >-->
+<!--                                        Thêm mới danh mục-->
+<!--                                    </a>-->
+                                </li>
+                            </ul>
+                        </li>
+                        <li id="brand" class="nav-parent">
+                            <a class="nav-link" href="#">
+                                <i class="bx bx-layout" aria-hidden="true"></i>
+                                <span>Quản lý nhãn hiệu</span>
+                            </a>
+                            <ul class="nav nav-children">
+                                <li>
+                                    <a class="nav-link" href="/admin/brands">
+                                        Danh sách nhãn hiệu
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" data-toggle="modal"
+                                       data-target="#modal-add-new-brand">Thêm mới thương hiệu</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li id="supplier" class="nav-parent">
+                            <a class="nav-link" href="#">
+                                <i class="bx bx-layout" aria-hidden="true"></i>
+                                <span>Quản lý nhà cung cấp</span>
+                            </a>
+                            <ul class="nav nav-children">
+                                <li>
+                                    <a class="nav-link" href="/admin/suppliers">
+                                        Danh sách nhà cung cấp
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" data-toggle="modal"
+                                       data-target="#modal-add-new-supplier">Thêm mới nhà cung cấp</a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/admin/suppliers/invoices"
+                                      >Danh sách nhập hàng</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li id="product"  class="nav-parent">
+                            <a class="nav-link" href="#">
+                                <i class="bx bx-loader-circle" aria-hidden="true"></i>
+                                <span>Quản lý sản phẩm</span>
+                            </a>
+                            <ul class="nav nav-children">
+                                <li>
+                                    <a class="nav-link" href="/admin/products">
+                                        Danh sách sản phẩm
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/admin/products/create">
+                                        Thêm mới sản phẩm
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li id="post" class="nav-parent">
+                            <a class="nav-link" href="#">
+                                <i class="bx bx-cube" aria-hidden="true"></i>
+                                <span>Quản lý bài viết</span>
+                            </a>
+                            <ul class="nav nav-children">
+                                <li>
+                                    <a class="nav-link" href="/admin/posts">
+                                        Danh sách bài viết
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/admin/posts/create">
+                                        Thêm mới bài viết
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li id="promotion" class="nav-parent">
+                            <a class="nav-link" href="#">
+                                <i class="bx bx-collection" aria-hidden="true"></i>
+                                <span>Quản lý khuyến mại</span>
+                            </a>
+                            <ul class="nav nav-children">
+                                <li>
+                                    <a class="nav-link" href="/admin/promotions">
+                                        Danh sách khuyến mại
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/admin/promotions/create">
+                                        Thêm mới khuyến mại
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li id="order" class="nav-parent">
+                            <a class="nav-link" href="#">
+                                <i class="bx bx-cart-alt" aria-hidden="true"></i>
+                                <span>Quản lý đơn hàng</span>
+                            </a>
+                            <ul class="nav nav-children">
+                                <li>
+                                    <a class="nav-link" href="/admin/orders">
+                                        Danh sách đơn hàng
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/admin/orders-confirmation">
+                                        Danh sách đơn chờ xác nhận
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/admin/orders-wait">
+                                        Danh sách đơn chờ lấy hàng
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/admin/orders-delivery">
+                                        Danh sách đơn đang giao
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/admin/orders-complete">
+                                        Danh sách đơn đã xong
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/admin/orders-return">
+                                        Danh sách đơn đã trả hàng
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/admin/orders-cancel">
+                                        Danh sách đơn đã hủy
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="/admin/orders-request-refund">
+                                        Danh sách đơn yêu cầu đổi trả
+                                    </a>
+                                </li>
+<!--                                <li>-->
+<!--                                    <a class="nav-link" href="/admin/orders/create">-->
+<!--                                        Thêm mới đơn hàng-->
+<!--                                    </a>-->
+<!--                                </li>-->
+                            </ul>
+                        </li>
+                        <li id="user" class="nav-parent">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-user-injured"></i>
+                                <span>Quản lý tài khoản</span>
+                            </a>
+                            <ul class="nav nav-children">
+                                <li>
+                                    <a class="nav-link" href="/admin/users">
+                                        Danh sách tài khoản
+                                    </a>
+                                </li>
+<!--                                <li>-->
+<!--                                    <a class="nav-link" href="#">-->
+<!--                                        Thêm mới tài khoản-->
+<!--                                    </a>-->
+<!--                                </li>-->
+                            </ul>
+                        </li>
+
+                    </ul>
+                </nav>
+            </div>
+
+        </div>
+    </aside>
+</th:block>

@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout :: main-fragment(
+                                                                     ~{:: title},
+                                                                    'header',
+                                                                    'footer',
+                                                                     ~{:: #css-resources},
+                                                                     ~{:: #js-resources},
+                                                                     ~{:: #main-content}
+                                                                    )}">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toán</title>
+    <th:block id="css-resources">
+        <link rel="stylesheet" th:href="@{/shop/css/custom.css}">
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    </th:block>
+</head>
+<body>
+<main class="main" id="main-content">
+    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="icon-home"></i></a></li>
+                <li class="breadcrumb-item active" aria-current="page">Thanh toán</li>
+            </ol>
+        </div><!-- End .container -->
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="order-summary">
+                    <h3>Đơn hàng</h3>
+                    <div class="collapse show" id="order-cart-section">
+                        <div class="table-container">
+                            <table class="table table-mini-cart text-center align-middle">
+                                <thead>
+                                <tr>
+                                    <th>Hình ảnh</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Mã sản phẩm</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn giá</th>
+                                    <th>Tổng</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <th:block th:if="${#lists.isEmpty(cartItems)}">
+                                    <tr class="text-center">
+                                        <td id="cartEmpty" colspan="7">Không có sản phẩm trong giỏ hàng.</td>
+                                    </tr>
+                                </th:block>
+                                <th:block th:each="item,itemStat  : ${cartItems}">
+                                    <tr class="text-center" style="max-height: 100px">
+                                        <td class="align-middle">
+                                            <figure class="product-image-container mb-0">
+                                                <!--                                        <a href="product.html" class="product-image">-->
+                                                <img style="width: 80px; height: 80px;"
+                                                     th:src="@{${item.productImg}}"
+                                                     th:alt="${item.productName}" src="" alt="">
+                                                <!--                                        </a>-->
+                                            </figure>
+                                        </td>
+                                        <td class="text-truncate align-middle " style="max-width: 100px"
+                                            data-toggle="tooltip"
+                                            data-placement="top"
+                                            data-trigger="hover"
+                                            th:title="${item.productName +' - Size: '+ item.size }"
+                                            th:text="${item.productName+ ' - Size: ' + item.size }">
+                                        </td>
+                                        <td class="align-middle" th:text="${item.productId}">
+                                        </td>
+                                        <td class="align-middle">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <a th:id="'decreaseBtn-' + ${itemStat.index}"
+                                                   th:data-index="${itemStat.index}" class="d-block"><i
+                                                        class="icon-minus-squared "></i></a>
+                                                <span id="quantityDisplay" class="badge"
+                                                      th:id="'quantityDisplay-' + ${itemStat.index}"
+                                                      th:text="${item.quantity}"></span>
+                                                <a th:id="'increaseBtn-' + ${itemStat.index}"
+                                                   th:data-index="${itemStat.index}" class="d-block"><i
+                                                        class="icon-plus-squared"></i></a>
+                                            </div>
+                                        </td>
+                                        <td class="align-middle"
+                                            th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></td>
+                                        <td class="align-middle total-price-item"
+                                            th:attr="data-product-index=${itemStat.index}"
+                                            th:text="${#numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 0, 'POINT') +' đ'}"></td>
+                                        <td class=" align-middle">
+                                            <a th:id="'deleteBtn-' + ${itemStat.index}"
+                                               th:data-id="${item.productId}"><i class="icon-cancel"></i></a>
+                                        </td>
+                                    </tr>
+                                </th:block>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Pricing Section-->
+                        <div class="pricing childs">
+
+                            <div class="mt-0 pb-0 coupon price-include">
+                                <!--                                <div class="text">Tạm tính</div>-->
+                                <label for="in-price" class="text">Tạm tính</label><input
+                                    class="form-control text-price-input" id="in-price" type="text"
+                                    readonly/>
+                            </div>
+                            <div class="mt-0 pb-0  coupon price-include">
+                                <!--                                <div class="text">Khuyến mãi</div>-->
+                                <label for="in-promotion-value" class="text">Khuyến mãi</label>
+                                <input class="form-control text-price-input" id="in-promotion-value" type="text"
+                                       readonly/>
+                            </div>
+                            <div class="mt-0 pb-0  coupon price-include">
+                                <label for="in-total-price" class="text">Tổng thanh toán</label>
+                                <input class="form-control text-price-input" id="in-total-price" type="text" readonly/>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group mt-4">
+                            <label for="payment" class="required-label">Phương thức thanh toán <span
+                                    class="required">*</span></label>
+                            <select class="form-control " id="payment" name="payment">
+                                <!--                                <option value="">Chọn thanh toán</option>-->
+                                <th:block th:each="item  : ${paymentMethod}">
+                                    <option th:if="${item.getIsActive()}" th:value="${item}"
+                                            th:data-icon="${item.getIconClass()}" th:text="${item.name()}">
+
+                                    </option>
+                                </th:block>
+
+                            </select>
+                            <div class="invalid-feedback"></div>
+                        </div>
+                        <div id="vnpay-icon" style="display: none;">
+
+                            <svg width="20px" height="20px" viewBox="0 0 48 48" id="b"
+                                 xmlns="http://www.w3.org/2000/svg">
+
+                                <defs>
+
+                                    <style>.c {
+                                        stroke-linecap: round;
+                                    }
+
+                                    .c, .d {
+                                        fill: none;
+                                        stroke: #000000;
+                                        stroke-linejoin: round;
+                                    }</style>
+
+                                </defs>
+
+                                <path class="d"
+                                      d="m28.6222,37.7222l14.4444-14.4444c.5778-.5778.5778-1.7333,0-2.3111l-8.6667-8.6667c-.5778-.5778-1.7333-.5778-2.3111,0l-6.3556,6.3556-9.2444-9.2444c-.5778-.5778-1.7333-.5778-2.3111,0l-9.2444,9.2444c-.5778.5778-.5778,1.7333,0,2.3111l16.7556,16.7556c1.7333,1.7333,5.2,1.7333,6.9333,0Z"/>
+
+                                <path class="c"
+                                      d="m25.7333,18.6556l-8.0889,8.0889c-2.3111,2.3111-4.6222,2.3111-6.9333,0"/>
+
+                                <g>
+
+                                    <path class="c"
+                                          d="m18.2222,30.7889c-1.1556,1.1556-2.3111,1.1556-3.4667,0m22.5333-15.6c-1.262-1.1556-2.8889-.5778-4.0444.5778l-15.0222,15.0222"/>
+
+                                    <path class="c"
+                                          d="m18.2222,15.7667c-4.6222-4.6222-10.4,1.1556-5.7778,5.7778l5.2,5.2-5.2-5.2"/>
+
+                                    <path class="c" d="m23.4222,20.9667l-4.0444-4.0444"/>
+
+                                    <path class="c"
+                                          d="m21.6889,22.7l-4.6222-4.6222c-.5778-.5778-1.4444-1.4444-2.3111-1.1556"/>
+
+                                    <path class="c"
+                                          d="m14.7556,20.3889c-.5778-.5778-1.4444-1.4444-1.1556-2.3111m5.7778,6.9333l-4.6222-4.6222"/>
+
+                                </g>
+
+                            </svg>
+                        </div>
+
+                        <a href="javascript:history.back()">
+                            <button class="btn btn-secondary confirm-btn">Quay lại</button>
+                        </a>
+                        <button type="button" class="btn btn-primary confirm-btn red-btn" id="btn-buy-now"
+                        >ĐẶT HÀNG
+                        </button>
+                        <div id="paypal-button-container"></div>
+                        <!--                        th:style="${notFoundSize} ? 'display:none': ''"-->
+                    </div><!-- End #order-cart-section -->
+                </div><!-- End .order-summary -->
+            </div><!-- End .col-lg-4 -->
+
+            <div class="col-lg-4 order-lg-first">
+                <div class="checkout-payment">
+                    <h2 class="step-title">Thông tin nhận hàng</h2>
+                    <div id="new-checkout-address" class="show">
+                        <form action="#">
+                            <div class="form-group required-field">
+                                <label for="receiver_name">Tên người nhận </label>
+                                <input type="text" class="form-control" name="receiver_name"
+                                       th:value="${user_fullname}" id="receiver_name" required>
+                                <div class="invalid-feedback"></div>
+                            </div><!-- End .form-group -->
+
+                            <div class="form-group required-field">
+                                <label for="receiver_phone">Số điện thoại </label>
+                                <input type="text" class="form-control" name="receiver_phone"
+                                       th:value="${user_phone}" maxlength="10" id="receiver_phone">
+                                <div class="invalid-feedback"></div>
+                            </div><!-- End .form-group -->
+                            <div class="form-group ">
+                                <label for="in-coupon">Mã khuyến mãi </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control"
+                                           id="in-coupon">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" id="btn-apply-coupon">Áp
+                                            dụng
+                                        </button>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <div class="dropdown-menu" id="coupon-list">
+                                            <!-- List of available coupons goes here -->
+                                            <th:block th:if="${#lists.isEmpty(promotions)}">
+                                                <a class="dropdown-item" href="#">Không có chương trình khuyến
+                                                    mãi.</a>
+                                            </th:block>
+                                            <th:block th:each="promotion  : ${promotions}">
+                                                <a class="dropdown-item" href="#" th:text="${promotion.couponCode}"></a>
+                                            </th:block>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><!-- End .form-group -->
+                            <div class="form-group required-field">
+                                <label for="receiver_address">Địa chỉ nhận hàng</label>
+                                <textarea type="text" class="form-control"
+                                          th:text="${user_address}" name="receiver_address" id="receiver_address"
+                                          required></textarea>
+                                <div class="invalid-feedback"></div>
+                            </div><!-- End .form-group -->
+
+                            <div class="form-group">
+                                <label for="notes">Ghi chú </label>
+                                <textarea type="text" class="form-control" id="notes"></textarea>
+                            </div><!-- End .form-group -->
+
+                        </form>
+                    </div><!-- End #new-checkout-address -->
+                </div><!-- End .checkout-payment -->
+            </div><!-- End .col-lg-8 -->
+        </div><!-- End .row -->
+    </div><!-- End .container -->
+
+    <div class="mb-6"></div><!-- margin -->
+    <!-- Modals-->
+    <!--    <th:block th:replace="~{fragment/size_choose_modal :: size-choose-modal}"></th:block>-->
+</main><!-- End .main -->
+
+<th:block id="js-resources">
+
+    <!--    <script th:src="@{/shop/js/size-choose.js}"></script>-->
+    <script src="https://www.paypal.com/sdk/js?client-id=AeKcCsvc8UljUcdmaxSAyigFe0E8WM2Dpe0w9HAyKfGyJvf1rlXGCkNONYrcbj7NRYWqlRMWx-3ROeg4&currency=USD"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script th:inline="javascript">
+        // let isLogined = [[${isLogined}]];
+        $(document).ready(function () {
+            $('#payment').select2({
+                templateResult: formatOption,
+                templateSelection: formatOption,
+                escapeMarkup: function (m) {
+                    return m;
+                }
+            });
+            $("#receiver_phone").on("input", function(evt) {
+                let self = $(this);
+                self.val(self.val().replace(/[^0-9\.]/g, ''));
+                if ((evt.which < 48 || evt.which > 57))
+                {
+                    evt.preventDefault();
+                }
+            });
+            console.log(isLogined)
+
+        });
+
+        function formatOption(option) {
+            if (!option.id) {
+                return option.text;
+            }
+            let icon = $(option.element).data('icon');
+            if (icon === 'vnpay-icon') {
+                let $option = $('<span><span class="icon">' + $('#' + icon).html() + '</span><span class="text">' + option.text + '</span></span>');
+                $option.find('.icon').css({
+                    'display': 'inline-block',
+                    'vertical-align': 'middle',
+
+
+                });
+                $option.find('.text').css({
+                    'display': 'inline-block',
+                    'vertical-align': 'middle',
+
+                });
+                return $option;
+            } else {
+                return $('<span><i class="' + icon + '"></i> ' + option.text + '</span>');
+            }
+
+        }
+
+        // Lấy tham số từ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorParam = urlParams.get('error');
+
+        // Kiểm tra nếu có tham số error
+        if (errorParam === '1') {
+            // Hiển thị thông báo lỗi
+            toastr.warning('Có lỗi xảy ra!');
+        }
+
+
+        let totalPrice = 0.0;
+        let reductionPrice = 0.0;
+
+        $(document).ready(function () {
+            // Xử lý khi nút giảm số lượng được nhấp
+            $(document).on('click', '[id^=decreaseBtn-]', function () {
+                let index = $(this).data('index');
+                let quantityDisplay = $('#quantityDisplay-' + index);
+                let currentQuantity = parseInt(quantityDisplay.text());
+
+                // Giảm số lượng nếu lớn hơn 1
+                if (currentQuantity > 1) {
+                    quantityDisplay.text(currentQuantity - 1);
+                    // Thực hiện các hành động cần thiết, ví dụ: cập nhật giỏ hàng, tính tổng giá, vv.
+                    updateCart(index, currentQuantity - 1);
+                }
+            });
+
+            // Xử lý khi nút tăng số lượng được nhấp
+            $(document).on('click', '[id^=increaseBtn-]', function () {
+                let index = $(this).data('index');
+                let quantityDisplay = $('#quantityDisplay-' + index);
+                let currentQuantity = parseInt(quantityDisplay.text());
+
+                // Tăng số lượng
+                quantityDisplay.text(currentQuantity + 1);
+                // Thực hiện các hành động cần thiết, ví dụ: cập nhật giỏ hàng, tính tổng giá, vv.
+                updateCart(index, currentQuantity + 1);
+
+            });
+
+
+            $("#in-coupon").click(function () {
+                $("#coupon-list").toggle();
+            });
+
+            $("#in-coupon").on("input", function () {
+                console.log($(this).val());
+                if ($(this).val() == "") {
+
+                } else {
+                    checkPromotion(checkPromotion($("#in-coupon").val(),function (result){
+                        if(!result){
+                            $('#in-price').val(totalPrice);
+                            reductionPrice = 0.0;
+                            $('#in-promotion-value').val(reductionPrice);
+                            $('#in-total-price').val(totalPrice);
+                            formatMoney();
+                        }
+                    }))
+                }
+
+            });
+
+            // Handle coupon selection from the dropdown
+            $("#coupon-list a").click(function () {
+                let selectedCoupon = $(this).text();
+                $("#in-coupon").val(selectedCoupon);
+                $("#coupon-list").hide();
+            });
+
+            // Hide the coupon list when clicking outside of it
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('#coupon-list').length &&
+                    !$(e.target).closest('#in-coupon').length) {
+                    $("#coupon-list").hide();
+                }
+            });
+
+        })
+
+        function updateCart(index, newQuantity) {
+            // Gửi yêu cầu cập nhật giỏ hàng đến server, ví dụ sử dụng Ajax
+            $.ajax({
+                url: '/updateCartItem',  // Đường dẫn tới controller hoặc endpoint xử lý cập nhật giỏ hàng
+                type: 'POST',
+                data: {
+                    index: index,
+                    newQuantity: newQuantity
+                },
+                success: function (response) {
+                    // Xử lý phản hồi từ server (nếu cần)
+                    let totalPriceTd = $(".total-price-item[data-product-index='" + index + "']");
+
+                    let formattedPrice = (response.price * newQuantity).toLocaleString('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                    }).replace(/\./g, ',').replace('₫', 'đ');
+
+
+                    totalPriceTd.text(formattedPrice);
+                    loadInPrice();
+                    loadInPriceTotal();
+                    updatePromotion();
+                    formatMoney();
+                },
+                error: function (error) {
+                    toastr.warning(error.responseJSON.message);
+                    let quantityDisplay = $('#quantityDisplay-' + index);
+                    let currentQuantity = parseInt(quantityDisplay.text());
+
+                    if (currentQuantity > 1) {
+                        quantityDisplay.text(currentQuantity - 1);
+                    }
+                }
+            });
+        }
+
+        $(document).on('click', '[id^=deleteBtn-]', function () {
+            let id = $(this).attr('id'); // Lấy giá trị của thuộc tính id
+            let index = id.split('-')[1];
+            // Lấy index của sản phẩm được nhúng trong thuộc tính data-index của nút xoá
+            // Gọi API xóa sản phẩm
+            $.ajax({
+                url: '/removeByIndex/' + index, // Đường dẫn đến API xóa sản phẩm từ giỏ hàng dựa trên index
+                type: 'DELETE',
+                success: function (data) {
+                    // Xóa sản phẩm thành công, cập nhật lại danh sách sản phẩm trong giỏ hàng
+                    // data.cartItems là danh sách sản phẩm mới từ API
+                    updateCartUI(data);
+                    loadInPrice();
+                    loadInPriceTotal();
+                    updatePromotion();
+                    formatMoney();
+                },
+                error: function (error) {
+                    toastr.warning(error.responseJSON.message);
+                }
+            });
+        });
+
+
+        function loadInPrice() {
+            let productTotal = 0.0;
+            let totalPriceItems = $(".total-price-item");
+            totalPriceItems.each(function (index, element) {
+                // Lấy giá trị của thuộc tính 'data-product-index'
+
+                // Lấy và xử lý giá tiền từ thuộc tính 'th:text'
+                let priceString = $(element).text().replace(' đ', '').replace(',', '');// Loại bỏ dấu 'đ' và dấu phẩy
+
+
+                let price = parseFloat(priceString.replace(',', ''));
+                productTotal += price;
+                // Thực hiện các thao tác cần thiết với giá trị và productIndex ở đây
+                // Ví dụ: console.log(productIndex, price);
+            });
+
+            let inPrice = document.getElementById("in-price");
+            inPrice.value = productTotal;
+
+        }
+
+        loadInPrice();
+
+        function loadInPriceTotal() {
+            let inPrice = document.getElementById("in-price");
+            let inPriceTotal = document.getElementById("in-total-price");
+
+            inPriceTotal.value = inPrice.value;
+
+            totalPrice = inPriceTotal.value;
+        }
+
+        loadInPriceTotal();
+        formatMoney();
+
+        function updateCartUI(cartItems) {
+            let tbody = document.querySelector('tbody');
+            tbody.innerHTML = ''; // Xóa nội dung hiện tại của tbody
+            if (cartItems.length === 0) {
+                let emptyRow = document.createElement('tr');
+                let emptyCell = document.createElement('td');
+                emptyCell.colSpan = 7; // Số lượng cột trong bảng
+                emptyCell.textContent = 'Không có sản phẩm trong giỏ hàng.';
+                emptyRow.appendChild(emptyCell);
+                tbody.appendChild(emptyRow);
+            } else {
+                cartItems.forEach(function (item, index) {
+                    let newRow = document.createElement('tr');
+                    newRow.className = 'text-center';
+                    newRow.style.maxHeight = '100px';
+
+                    let productImageCell = document.createElement('td');
+                    productImageCell.className = 'align-middle';
+
+                    // Tạo thẻ figure
+                    let figure = document.createElement("figure");
+                    figure.className = "product-image-container mb-0";
+                    let productImage = document.createElement('img');
+                    productImage.style.width = '80px';
+                    productImage.style.height = '80px';
+                    productImage.src = item.productImg;
+                    productImage.alt = item.productName;
+                    figure.appendChild(productImage);
+
+                    productImageCell.appendChild(figure);
+
+                    let productNameCell = document.createElement('td');
+                    productNameCell.className = 'text-truncate align-middle';
+                    productNameCell.style.maxWidth = '100px';
+                    productNameCell.setAttribute("data-toggle", "tooltip");
+                    productNameCell.setAttribute("data-placement", "top");
+                    productNameCell.title = item.productName + ' - Size: ' + item.size;
+                    productNameCell.textContent = item.productName + ' - Size: ' + item.size;
+
+                    let productIdCell = document.createElement('td');
+                    productIdCell.className = 'align-middle';
+                    productIdCell.textContent = item.productId;
+
+                    let quantityCell = document.createElement('td');
+                    quantityCell.className = 'align-middle';
+                    let quantityContainer = document.createElement('div');
+                    quantityContainer.className = 'd-flex justify-content-between align-items-center';
+                    let decreaseBtn = document.createElement('a');
+                    decreaseBtn.id = 'decreaseBtn-' + index;
+                    decreaseBtn.className = 'd-block';
+                    decreaseBtn.setAttribute("data-index", index);
+                    decreaseBtn.innerHTML = '<i class="icon-minus-squared"></i>';
+                    let quantityDisplay = document.createElement('span');
+                    quantityDisplay.id = 'quantityDisplay-' + index;
+                    quantityDisplay.className = 'badge';
+                    quantityDisplay.textContent = item.quantity;
+                    let increaseBtn = document.createElement('a');
+                    increaseBtn.id = 'increaseBtn-' + index;
+                    increaseBtn.className = 'd-block';
+                    increaseBtn.setAttribute("data-index", index);
+                    increaseBtn.innerHTML = '<i class="icon-plus-squared"></i>';
+
+                    quantityContainer.appendChild(decreaseBtn);
+                    quantityContainer.appendChild(quantityDisplay);
+                    quantityContainer.appendChild(increaseBtn);
+                    quantityCell.appendChild(quantityContainer);
+
+                    let priceCell = document.createElement('td');
+                    priceCell.className = 'align-middle';
+                    priceCell.textContent = item.price.toLocaleString('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                    }).replace(/\./g, ',').replace('₫', 'đ');
+
+                    let totalPriceCell = document.createElement('td');
+                    totalPriceCell.className = 'align-middle total-price-item';
+                    totalPriceCell.dataset.productIndex = index;
+                    totalPriceCell.textContent = (item.price * item.quantity).toLocaleString('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                    }).replace(/\./g, ',').replace('₫', 'đ');
+
+                    let deleteCell = document.createElement('td');
+                    deleteCell.className = 'align-middle';
+                    let deleteBtn = document.createElement('a');
+                    deleteBtn.id = 'deleteBtn-' + index;
+                    deleteBtn.dataset.id = item.productId;
+                    deleteBtn.innerHTML = '<i class="icon-cancel"></i>';
+
+                    deleteCell.appendChild(deleteBtn);
+
+                    newRow.appendChild(productImageCell);
+                    newRow.appendChild(productNameCell);
+                    newRow.appendChild(productIdCell);
+                    newRow.appendChild(quantityCell);
+                    newRow.appendChild(priceCell);
+                    newRow.appendChild(totalPriceCell);
+                    newRow.appendChild(deleteCell);
+
+                    tbody.appendChild(newRow);
+                });
+            }
+        }
+
+        $('#btn-buy-now').click(function () {
+
+            $(this).prop('disabled', true);
+            let receiverName = $('#receiver_name').val();
+            let receiverPhone = $('#receiver_phone').val();
+            let receiverAddress = $('#receiver_address').val();
+            let coupon = $('#in-coupon').val();
+            let notes = $('#notes').val();
+            let payment = $("#payment").val();
+            let isValid = true;
+            if (payment === "") {
+                let paymentInvalid = $('#payment').next();
+                paymentInvalid.css('display', 'block');
+                paymentInvalid.html('Vui lòng chọn cách thanh toán');
+                isValid = false;
+            }
+
+            if (receiverName.length === 0) {
+                let fullNameInvalid = $('#receiver_name').next();
+                fullNameInvalid.css('display', 'block');
+                fullNameInvalid.html('Vui lòng nhập họ tên người nhận hàng');
+                isValid = false;
+            }
+            if (receiverPhone.length === 0) {
+                let phoneInvalid = $('#receiver_phone').next();
+                phoneInvalid.css('display', 'block');
+                phoneInvalid.html('Vui lòng nhập số điện thoại người nhận hàng');
+                isValid = false;
+            }
+            let phoneFormat = new RegExp(/((09|03|07|08|05)+([0-9]{8})\b)/g);
+            if (!phoneFormat.test(receiverPhone)) {
+                let phoneInvalid = $('#in-user-phone').next();
+                phoneInvalid.css('display', 'block');
+                phoneInvalid.html('Số điện thoại không hợp lệ');
+                isValid = false;
+            }
+            if (receiverAddress.length === 0) {
+                let addressInvalid = $('#receiver_address').next();
+                addressInvalid.css('display', 'block');
+                addressInvalid.html('Vui lòng nhập địa chỉ nhận hàng');
+                isValid = false;
+            }
+            let products = getProductsFromTable();
+
+            if (products.length === 0) {
+                toastr.warning("Giỏ hàng trống vui lòng thêm sản phẩm !");
+                return;
+            }
+            if (coupon === "") {
+                reductionPrice = 0.0;
+            }
+            if(isLogined==false){
+                toastr.warning("Vui lòng đăng nhập để thanh toán !");
+                console.log("chua dang nhap")
+                $(this).prop('disabled', false);
+
+                return
+            }
+            let req = {
+                product_list: products,
+                receiver_name: receiverName,
+                receiver_phone: receiverPhone,
+                receiver_address: receiverAddress,
+                coupon_code: coupon,
+                total_price: totalPrice - reductionPrice,
+                reduction_price: reductionPrice,
+                estimate_price: totalPrice,
+                payment: payment,
+                note: notes
+            }
+
+            let myJSON = JSON.stringify(req);
+
+            checkPromotion(coupon,function (result){
+
+                if(!result){
+                    toastr.warning("Mã khuyến mãi sai!");
+                    isValid=false;
+
+                }
+                console.log(myJSON);
+
+                if (isValid && payment === "COD") {
+
+                    $.ajax({
+                        url: '/api/orders',
+                        type: 'POST',
+                        data: myJSON,
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            toastr.success("Đặt hàng thành công");
+                            setTimeout(function () {
+                                location.href = "/tai-khoan/lich-su-giao-dich/" + data;
+                            }, 1000)
+                        },
+                        error: function (data) {
+                            toastr.warning(data.responseJSON.message);
+                        },
+                    });
+                } else if (isValid && payment == "VNPAY") {
+                    $.ajax({
+                        url: '/api/vnpay/create_payment',
+                        type: 'POST',
+                        data: myJSON,
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            toastr.success("Đặt hàng thành công");
+
+                            setTimeout(function () {
+                                window.location.href = data.url;
+                            }, 1000)
+                        },
+                        error: function (data) {
+                            toastr.warning(data.responseJSON.message);
+                        },
+                    });
+                } else if (isValid && payment === "PAYPAL") {
+
+                    $.ajax({
+                        url: '/api/paypal/create_payment',
+                        type: 'POST',
+                        data: myJSON,
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+
+                            if (data.status === "success") {
+                                toastr.success("Đặt hàng thành công");
+                                setTimeout(function () {
+                                    window.location.href = data.redirect_url;
+                                }, 1000)
+                            }
+
+                        },
+                        error: function (data) {
+                            toastr.warning(data.responseJSON.message);
+                        },
+                    });
+                }
+            });
+
+        })
+
+        function getProductsFromTable() {
+            // Lấy danh sách các dòng từ bảng
+            let rows = document.querySelectorAll('tbody tr');
+            let products = [];
+
+            // Duyệt qua từng dòng trong bảng và tạo đối tượng sản phẩm từ dữ liệu của dòng đó
+            rows.forEach(function (row) {
+
+                let cartEmpty = row.querySelector('#cartEmpty')
+                if (cartEmpty) {
+                    return;
+                }
+                let productImg = row.querySelector('img').getAttribute('src');
+                let productNameAndSize = row.querySelectorAll('td')[1].textContent;
+                let productId = row.querySelectorAll('td')[2].textContent;
+                let sizeRegex = /Size: (\d+)/;
+                let sizeMatch = productNameAndSize.match(sizeRegex);
+                let size = sizeMatch ? parseInt(sizeMatch[1]) : null;
+                let quantity = parseInt(row.querySelector('.badge').textContent);
+                let price = parseFloat(row.querySelectorAll('td')[4].textContent.replace(/\D/g, '')) // Loại bỏ ký tự không phải số
+
+                // Tạo đối tượng sản phẩm
+                let product = {
+                    productImg: productImg,
+                    productId: productId,
+                    productName: productNameAndSize,
+                    size: size,
+                    quantity: quantity,
+                    price: price
+                };
+
+                // Thêm đối tượng sản phẩm vào mảng products
+                products.push(product);
+            });
+
+            // Trả về danh sách sản phẩm
+            return products;
+        }
+
+        function checkPromotion(coupon,callback) {
+            if (coupon == "") {
+                callback(true);
+                return;
+            }
+            $.ajax({
+                url: '/api/check-promotion?code=' + coupon,
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    console.log(data);
+                    let tmp = data.discountValue;
+                    let inPrice = document.getElementById("in-price");
+
+                    if (data.discountType === 1) {
+
+                        let price = parseInt(inPrice.value.replace(/[^\d]/g, ""), 10);
+                        tmp = price * (data.discountValue / 100);
+
+                    }
+                    if (tmp < data.maximumDiscountValue) {
+                        reductionPrice = tmp;
+                    } else {
+                        reductionPrice = data.maximumDiscountValue;
+                    }
+
+                    $('#in-price').val(totalPrice);
+                    $('#in-promotion-value').val(reductionPrice);
+                    $('#in-total-price').val(totalPrice - reductionPrice);
+                    formatMoney();
+
+                    callback(true);
+                },
+                error: function (error) {
+                    callback(false);
+                },
+            });
+        }
+
+        $('#btn-apply-coupon').click(function () {
+            let coupon = $('#in-coupon').val();
+
+            checkPromotion(coupon,function (result){
+
+            });
+
+
+        })
+
+        function updatePromotion() {
+            let coupon = $('#in-coupon').val();
+            $('#in-price').val(totalPrice);
+            if (coupon === "") {
+                $('#in-coupon').val(coupon);
+                reductionPrice = 0.0;
+                $('#in-promotion-value').val(reductionPrice);
+                $('#in-total-price').val(totalPrice);
+                return;
+            }
+
+
+            $('#in-promotion-value').val(reductionPrice);
+            $('#in-total-price').val(totalPrice - reductionPrice);
+
+        }
+    </script>
+
+
+</th:block>
+</body>
+</html>

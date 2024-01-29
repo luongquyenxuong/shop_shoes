@@ -1,0 +1,81 @@
+<th:block th:fragment="modal-add-supplier">
+  <div class="modal fade" id="modal-add-new-supplier" tabindex="-1" role="dialog"
+       aria-labelledby="modalAddNewSupplier"
+       aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Thêm nhà cung cấp</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="formSupplier" class="row">
+            <div class="form-group col-6">
+              <label class="required-label" for="new_name_supplier">Tên nhà cung cấp <span
+                      class="required">*</span></label>
+              <input type="text" class="form-control" name="new_name_supplier" id="new_name_supplier">
+
+            </div>
+            <br>
+            <div class="form-group col-6">
+              <label class="required-label" for="new_address_supplier">Địa chỉ nhà cung cấp <span
+                      class="required">*</span></label>
+              <input type="text" class="form-control" name="new_address_supplier"
+                     id="new_address_supplier">
+
+            </div>
+            <br>
+            <div class="form-group col-6">
+              <label class="required-label" for="new_phone_supplier">Số điện thoại nhà cung
+                cấp <span
+                        class="required">*</span></label>
+              <input type="text" class="form-control" name="new_phone_supplier" id="new_phone_supplier">
+
+            </div>
+            <br>
+            <div class="form-group col-6">
+              <label class="required-label" for="new_contact_person_supplier">Người đại diện nhà cung
+                cấp <span
+                        class="required">*</span></label>
+              <input type="text" class="form-control" name="new_contact_person_supplier"
+                     id="new_contact_person_supplier">
+
+            </div>
+            <br>
+            <div class="form-group col-6">
+              <label class="required-label" for="new_email_supplier">Email nhà cung cấp <span
+                      class="required">*</span></label>
+              <input type="text" class="form-control" name="new_email_supplier" id="new_email_supplier">
+
+            </div>
+            <br>
+
+            <div class="form-group col-6">
+              <label class="required-label" for="new_tax_supplier">Mã số thuế</label>
+              <input type="text" class="form-control" name="new_tax_supplier" id="new_tax_supplier">
+            </div>
+            <br>
+            <div class="form-group col-6">
+              <label class="required-label" for="new_website_supplier">Website</label>
+              <input type="text" class="form-control" name="new_website_supplier"
+                     id="new_website_supplier">
+            </div>
+            <br>
+            <div class="form-group col-6">
+              <label class="required-label" for="new_note_supplier">Ghi chú</label>
+              <input type="text" class="form-control" name="new_note_supplier" id="new_note_supplier">
+            </div>
+            <br>
+            <div class="modal-footer col-12">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+              <button type="submit" class="btn btn-info btn-add-new-supplier">Thêm</button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

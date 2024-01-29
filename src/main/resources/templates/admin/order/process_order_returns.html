@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout_admin :: main-fragment(
+                                                ~{:: title},
+                                                'header',
+                                                'sidebar',
+                                                ~{:: #css-resources},
+                                                ~{:: #js-resources},
+                                                ~{:: #main-content}
+                                               )}">
+<head>
+    <meta charset="UTF-8">
+    <title>Sửa đơn hàng</title>
+    <th:block id="css-resources">
+        <link rel="stylesheet" th:href="@{/adminlte/pagination/simplePagination.css}">
+        <link rel="stylesheet" th:href="@{/adminlte/css/order.css}">
+    </th:block>
+</head>
+<body>
+<section role="main" class="content-body" id="main-content">
+    <header class="page-header">
+        <!--        <h2>Editable Tables</h2>-->
+        <div class="right-wrapper text-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="/admin">
+                        <i class="bx bx-home-alt"></i>
+                    </a>
+                </li>
+                <li><a href="/admin/orders"><span>Thông tin đơn hàng</span></a></li>
+                <li><span th:text="'Đơn hàng ' + ${refund.order.id}"></span></li>
+            </ol>
+            <a class="sidebar-right-toggle" data-open="sidebar-right"><i
+                    class="fas fa-chevron-left"></i></a>
+        </div>
+    </header>
+    <section class="card">
+        <header class="card-header">
+            <div class="card-actions">
+                <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+                <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
+            </div>
+            <h2 class="card-title">Đơn hàng trả lại</h2>
+            <br>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="mb-3">
+                        <a href="javascript:history.back()" class="btn btn-primary"><i
+                                class="fas fa-chevron-left"></i> Trở về</a>
+                        <th:block th:if="${refund.status==0}">
+                            <button onclick="processReturn()" type="button"
+
+                                    class="btn btn-info btn-update-order">Xác nhận yêu cầu
+                                <i class="fas fa-plus"></i></button>
+
+                        </th:block>
+                        <th:block th:if="${refund.status==1}">
+                            <button onclick="processReturn()" type="button"
+
+                                    class="btn btn-success btn-update-order">Xác nhận trả lại
+                                <i class="fas fa-plus"></i></button>
+                        </th:block>
+
+                        <button th:if="${refund.status!=2 && refund.status!=3}" onclick="rejectReturn()" type="button"
+                                class="btn btn-danger btn-reject-order">Từ chối yêu cầu
+                            <i class="fas fa-minus"></i></button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="card-body">
+            <!-- Main content -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-outline">
+                        <div class="card-body pad">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="info-div">
+                                        <label>Chi tiết đơn hàng</label>
+                                        <!--                                        <th:block th:if="${order.status} == 1">-->
+                                        <!--                                            <button class="btn" onclick="openModalChangeDetailOrder()"><i-->
+                                        <!--                                                    class="fas fa-edit"></i></button>-->
+                                        <!--                                        </th:block>-->
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                <tr>
+                                                    <th>Sản phẩm</th>
+                                                    <th>Kích cỡ</th>
+                                                    <th>Giá</th>
+                                                    <th>Số lượng đơn hàng</th>
+                                                    <th>Số lượng trả lại</th>
+                                                    <th>Tổng tiền trả lại</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <th:block th:if="${refund.status==0}"
+                                                          th:each="detail,iterStat  : ${refund.order.details}">
+                                                    <tr th:data-id="${detail.id}">
+                                                        <td>
+                                                            <a th:id="'product_' + ${detail.id}"
+                                                               th:data-product-id="${detail.productId}"
+                                                               th:href="@{/admin/products/{slug}/{id}(id=${detail.productId}, slug=${detail.productSlug})}"
+                                                               th:text="${detail.productName}"></a>
+                                                        </td>
+                                                        <td>
+                                                            <span th:id="'size_' + ${detail.id}"
+                                                                  th:text="${detail.size}"></span>
+                                                            <th:block th:if="${refund.status} == 1">
+
+                                                            </th:block>
+                                                        </td>
+                                                        <td>
+                                                            <span th:id="${'price'+detail.id}" class="text-price money"
+                                                                  th:text="${#numbers.formatInteger(detail.price,0)}"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span th:id="${'orderQuantity'+detail.id}"
+                                                                  class="text-price"
+                                                                  th:text="${detail.quantity}"></span>
+                                                        </td>
+                                                        <td>
+                                                            <input type="number" class="quantity-input"
+                                                                   th:id="${'returnQuantity' + detail.id}"
+                                                                   value="0" min="0" th:max="${detail.quantity}"
+                                                                   th:onchange="'updateTotal(' + ${detail.id} + ')'"/>
+                                                        </td>
+
+
+                                                        <td class="money" th:id="${'total'+detail.id}" th:text="0"></td>
+
+
+                                                    </tr>
+                                                </th:block>
+
+                                                <th:block th:if="${refund.status !=0 }"
+                                                          th:each="detail,iterStat  : ${refund.returnDetails}">
+                                                    <tr th:data-id="${detail.id}">
+                                                        <td>
+                                                            <a th:id="'product_' + ${detail.id}"
+                                                               th:data-product-id="${detail.productId}"
+                                                               th:href="@{/admin/products/{slug}/{id}(id=${detail.productId}, slug=${detail.productSlug})}"
+                                                               th:text="${detail.productName}"></a>
+                                                        </td>
+                                                        <td>
+                                                            <span th:id="'size_' + ${detail.id}"
+                                                                  th:text="${detail.size}"></span>
+                                                            <th:block th:if="${refund.status} == 1">
+
+                                                            </th:block>
+                                                        </td>
+                                                        <td>
+                                                            <span th:id="${'price'+detail.id}" class="text-price money"
+                                                                  th:text="${#numbers.formatInteger(detail.price,0)}"></span>
+                                                        </td>
+                                                        <td>
+                                                            <span th:id="${'orderQuantity'+detail.id}"
+                                                                  th:text="${detail.quantityOrder}"></span>
+                                                        </td>
+                                                        <td>
+                                                            <input type="number" class="quantity-input"
+                                                                   th:id="${'returnQuantity' + detail.id}"
+                                                                   th:value="${detail.quantityReturn}" disabled
+                                                            />
+<!--                                                            <span th:id="${'returnQuantity'+detail.id}"-->
+<!--                                                                  th:text="${detail.quantityReturn}"></span>-->
+                                                        </td>
+
+
+                                                        <td>
+                                                              <span
+                                                                    class="money"
+                                                                    th:text="${#numbers.formatInteger(detail.totalPrice,0)}"></span>
+                                                        </td>
+
+
+                                                    </tr>
+                                                </th:block>
+                                                </tbody>
+                                            </table>
+
+                                            <div class="text-left mt-3 d-flex">
+                                                <strong style="width: 400px">Tạm tính giá tiền: <span class="money"
+                                                                                                        th:text="${#numbers.formatInteger(refund.order.usedPromotion.estimatePrice,0)}"></span>
+                                                </strong>
+                                                <strong style="width: 500px">Mã code đã áp dụng: <span class=""
+                                                                                                           th:text="${refund.order.usedPromotion.couponCode == null
+                                                                                                           ?'Không có'
+                                                                                                           : refund.order.usedPromotion.couponCode}"></span>
+                                                </strong>
+                                                <strong>Tiền hoàn trả: <span class="money" id="grandTotal" th:text="${refund.status != 0
+                                                ? #numbers.formatInteger(refund.refundAmount,0)
+                                                :''}"></span>
+                                                </strong>
+                                            </div>
+                                            <div class="text-left mt-3 d-flex">
+                                                <strong style="width: 400px">Số tiền giảm: <span class="money"
+                                                                                                    th:text="${refund.order.usedPromotion.reductionPrice != null ? #numbers.formatInteger(refund.order.usedPromotion.reductionPrice, 0) : 0}"></span></strong>
+
+                                                <strong>
+                                                    Kiểu giảm :
+                                                    <span class="" th:text="${refund.order.usedPromotion.couponCode != null
+                                                    ? (refund.order.usedPromotion.discountType == 1 ? 'Giảm % của hóa đơn' : 'Giảm giá theo số tiền cụ thể')
+                                                    : 'Không có giảm giá'}"></span>
+                                                </strong>
+
+                                            </div>
+                                            <div class="text-left mt-3 d-flex">
+                                                <strong style="width: 400px">Tổng giá tiền: <span id="totalPrice"
+                                                                                                  class="money"
+                                                                                                  th:text="${#numbers.formatInteger(refund.order.totalPrice,0)}"></span>
+                                                </strong>
+                                                <strong>Giá trị của mã giảm : <span
+                                                        th:classappend="${refund.order.usedPromotion.couponCode != null && refund.order.usedPromotion.discountType == 2 ? 'money' : ''}"
+                                                        th:text="${refund.order.usedPromotion.couponCode != null ? (refund.order.usedPromotion.discountType == 1 ? #numbers.formatInteger(refund.order.usedPromotion.discountValue,0) + '%' : #numbers.formatInteger(refund.order.usedPromotion.discountValue,0)) : 'Không có'}"></span>
+
+                                                </strong>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+
+                                    <div class="info-div">
+                                        <h3>Lý do trả hàng</h3>
+                                        <div class="row" style="margin-top: 10px;">
+                                            <div class="col-md-12">
+                                                <div class="input-group">
+                                                    <textarea name="reason-refund" id="reason-refund" th:readonly="${refund.status != 0} ? 'readonly' : null"
+                                                              th:text="${refund.reason}"
+                                                              rows="5"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-div">
+                                        <h3>Thông tin người đặt</h3>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><i
+                                                                class="fas fa-user"></i></span>
+                                                    </div>
+                                                    <input type="text" class="form-control" readonly
+                                                           th:value="${refund.order.createdFullName}">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
+                                                    </div>
+                                                    <input type="text" class="form-control" readonly
+                                                           th:value="${refund.order.createdPhone}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top: 10px;">
+                                            <div class="col-md-6">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><i
+                                                                class="fas fa-envelope"></i></span>
+                                                    </div>
+                                                    <input type="text" class="form-control" readonly
+                                                           th:value="${refund.order.createdEmail}">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><i
+                                                                class="far fa-calendar-alt"></i></span>
+                                                    </div>
+                                                    <input type="text" class="form-control" readonly
+                                                           th:value="${#dates.format(refund.order.createdAt, 'dd-MM-yyyy HH:mm')}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-div">
+                                        <h3>Thông tin người nhận</h3>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><i
+                                                                class="fas fa-user"></i></span>
+                                                    </div>
+                                                    <input id="receiver-name" type="text" class="form-control"
+                                                           th:value="${refund.order.receiverName}"
+                                                           th:readonly="${refund.order.status} != 1">
+                                                    <span class="invalid-feedback" id="invalid-feedback-name">Họ tên trống</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
+                                                    </div>
+                                                    <input id="receiver-phone" type="text" class="form-control"
+                                                           th:value="${refund.order.receiverPhone}"
+                                                           th:readonly="${refund.order.status} != 1">
+                                                    <span class="invalid-feedback" id="invalid-feedback-phone">Điện thoại trống</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top: 10px;">
+                                            <div class="col-md-12">
+                                                <div class="input-group">
+                                                    <textarea name="receiver-address" id="receiver-address" rows="5"
+                                                              th:text="${refund.order.receiverAddress}"
+                                                              th:readonly="${refund.order.status} != 1"></textarea>
+                                                    <span class="invalid-feedback" id="invalid-feedback-address">Địa chỉ trống</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+</section>
+
+<th:block id="js-resources">
+    <script type="text/javascript" th:src="@{/adminlte/js/simple.money.format.js}"></script>
+
+    <script th:inline="javascript">
+        let couponCode = [[${refund.order.usedPromotion.couponCode}]];
+        let discountType = [[${refund.order.usedPromotion.discountType}]];
+        let discountValue = [[${refund.order.usedPromotion.discountValue}]];
+        let maxDiscountValue = [[${refund.order.usedPromotion.maximumDiscountValue}]];
+        let totalPrice = [[${refund.order.totalPrice}]];
+        let order = [[${refund.order}]];
+        let productList = document.querySelectorAll('tbody tr');
+        $('#order').addClass('nav-expanded');
+        $('.money').simpleMoneyFormat();
+
+        function areAllRefunded() {
+            let allRefunded = true;
+            productList.forEach(function (product) {
+                // Lấy giá trị của thuộc tính 'data-id'
+                let detailId = product.getAttribute('data-id');
+
+                let orderQuantity = parseInt(document.getElementById('orderQuantity' + detailId).innerText);
+
+
+                let returnQuantityInput = document.getElementById('returnQuantity' + detailId);
+
+                let returnQuantity = parseInt(returnQuantityInput.value);
+
+
+                if (orderQuantity !== returnQuantity) {
+                    allRefunded = false;
+                }
+
+            })
+            return allRefunded;
+        }
+
+        function calculateRefund(price, totalOrderValue, maxDiscount) {
+
+            // Tính phần trăm giá trị của sản phẩm so với tổng giá trị đơn hàng
+            let percentage = price / totalOrderValue;
+
+            // Tính số tiền khuyến mãi tương ứng với sản phẩm
+            let discount = Math.round(percentage * maxDiscount);
+
+            // Tính giá trả lại cho sản phẩmrefundPrice
+            return price - discount;
+        }
+
+        function updateTotal(productId) {
+
+            let orderQuantity = parseInt(document.getElementById('orderQuantity' + productId).innerText);
+
+
+            let returnQuantityInput = document.getElementById('returnQuantity' + productId);
+
+            let returnQuantity = parseInt(returnQuantityInput.value);
+
+
+            let price = parseFloat(document.getElementById('price' + productId).innerText.replaceAll(',', ''));
+
+
+            // Giới hạn số lượng trả lại không vượt quá số lượng đơn hàng
+            returnQuantity = Math.min(returnQuantity, orderQuantity);
+
+            // Cập nhật số lượng trả lại
+            returnQuantityInput.value = returnQuantity;
+
+            let totalOrderValue = 0;
+            productList.forEach(function (product) {
+                let detailId = product.getAttribute('data-id');
+                totalOrderValue += parseFloat(product.querySelector('#price' + detailId).innerText.replaceAll(',', ''));
+            });
+
+            let total
+            // Tính tổng tiền
+            if (couponCode != null && discountType === 1) {
+                total = returnQuantity * calculateRefund(price, totalOrderValue, maxDiscountValue);
+            } else if (discountType === 2 && areAllRefunded()) {
+                total = returnQuantity * price - discountValue;
+            } else {
+                total = returnQuantity * price;
+            }
+
+            document.getElementById('total' + productId).innerText = total;
+
+            // Cập nhật tổng tiền trả lại
+            let grandTotal = 0;
+
+
+            productList.forEach(function (product) {
+                let detailId = product.getAttribute('data-id');
+                grandTotal += parseInt(product.querySelector('#total' + detailId).innerText.replaceAll(',', ''));
+            });
+            if (areAllRefunded()) {
+                document.getElementById('grandTotal').innerText = totalPrice.toString();
+            } else {
+                document.getElementById('grandTotal').innerText = grandTotal.toString();
+            }
+
+
+            $('.money').simpleMoneyFormat();
+        }
+
+        function rejectReturn(){
+            $.ajax({
+                url: '/api/admin/orders/refund-reject/' + order.id,
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    console.log(data);
+                    if(data.status ==3){
+                        toastr.success("Đã từ chối yêu cầu");
+                        setTimeout(function () {
+                            location.href = "/admin/orders-request-refund";
+                        }, 1000)
+                        return;
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                    toastr.warning(error.responseJSON.message);
+
+                },
+            });
+        }
+
+        function processReturn() {
+
+            let reason = document.getElementById('reason-refund')
+            let productListData = [];
+            productList.forEach(function (product) {
+                let detailId = product.getAttribute('data-id');
+                let productName = product.querySelector('td:nth-child(1)').innerText;
+                let orderQuantity = parseInt(product.querySelector('td:nth-child(4)').innerText);
+                let returnQuantity = parseInt(product.querySelector('td:nth-child(5) input').value);
+                let priceRefund = product.querySelector('td:nth-child(6)').innerText.replaceAll(',', '');
+                // Lấy thẻ <a> bằng cách sử dụng ID hoặc class hoặc bất kỳ phương thức nào khác phù hợp
+                let productId = document.getElementById('product_' + detailId).getAttribute('data-product-id');
+                let size = parseInt(document.getElementById('size_' + detailId).innerText);
+
+                if (returnQuantity !== 0) {
+                    // Tạo một đối tượng để lưu trữ thông tin sản phẩm
+                    let productData = {
+                        productId: productId,
+                        productName: productName,
+                        size: size,
+                        returnQuantity: returnQuantity,
+                        orderQuantity: orderQuantity,
+                        priceRefund: priceRefund
+                    };
+
+                    // Thêm đối tượng vào mảng
+                    productListData.push(productData);
+                }
+            });
+            if (reason.value === "" || productListData.length === 0) {
+                toastr.warning("Chưa chọn sản phẩm trả lại hoặc chưa nhập lý do");
+                return;
+            }
+            console.log(productListData);
+            saveRefundData({
+                productListData: productListData,
+                reason: reason.value,
+                fullyReturned: areAllRefunded(),
+                refundAmount: parseFloat(document.getElementById("grandTotal").innerText.replaceAll(',', ''))
+            })
+
+        }
+
+        function saveRefundData(req) {
+
+            let myJSON = JSON.stringify(req);
+
+            $.ajax({
+                url: '/api/admin/orders/refund/' + order.id,
+                type: 'POST',
+                data: myJSON,
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    if(data.status !== 2){
+                        toastr.success("Yêu cầu đã được chấp nhận và đang xử lý");
+                        setTimeout(function () {
+                            location.href = "/admin/orders-request-refund";
+                        }, 1000)
+                        return;
+                    }
+                    if (data.order.paymentMethod === "VNPAY") {
+                        refundVnPay()
+                    } else if (data.order.paymentMethod === "PAYPAL") {
+                        refundPayPal()
+                    } else {
+                        toastr.success("Cập nhật trả hàng và hoàn tiền thành công");
+                        setTimeout(function () {
+                            location.href = "/admin/orders-request-refund";
+                        }, 1000)
+                    }
+
+                },
+                error: function (error) {
+                    console.log(error);
+                    toastr.warning(error.responseJSON.message);
+
+                },
+            });
+        }
+
+        function refundVnPay() {
+            $.ajax({
+                url: '/api/vnpay/payment-refund/' + order.id,
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    if (data.vnp_ResponseCode === "00") {
+                        toastr.success("Cập nhật trả hàng và hoàn tiền thành công");
+                        setTimeout(function () {
+                            location.href = "/admin/orders-request-refund";
+                        }, 1000)
+                    } else {
+                        toastr.warning(data.vnp_Message);
+                    }
+
+
+                },
+                error: function (error) {
+
+                    toastr.warning(error.responseJSON.message);
+
+                },
+            });
+        }
+
+        function refundPayPal() {
+            $.ajax({
+                url: '/api/paypal/payment/refund/' + order.id,
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    console.log(data)
+                    if (data.status === "success") {
+                        toastr.success("Cập nhật trả hàng và hoàn tiền thành công");
+                        setTimeout(function () {
+                            location.href = "/admin/orders-request-refund";
+                        }, 1000)
+                    } else {
+
+                    }
+                },
+                error: function (error) {
+
+                    toastr.warning(error.responseJSON.message);
+
+                },
+            });
+        }
+
+        // Gọi hàm updateTotal khi trang được tải
+        window.onload = function () {
+
+            productList.forEach(function (product) {
+                let detailId = product.getAttribute('data-id');
+                updateTotal(detailId);
+            });
+        };
+
+
+    </script>
+</th:block>
+</body>
+</html>
